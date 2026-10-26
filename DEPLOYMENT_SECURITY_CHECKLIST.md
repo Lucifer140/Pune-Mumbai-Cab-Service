@@ -1,4 +1,5 @@
 # Production Deployment Security Checklist
+
 **Project:** Sangita Travels Pune — Intercity Cab Management System  
 **Audit Branch:** `audit-remediation`  
 **Date:** October 13, 2026  
@@ -16,19 +17,25 @@ Before deploying Sangita Travels Pune to production, every check in this documen
 ## 2. Security Controls Checklist
 
 ### 2.1 Environment & Secrets Management
+
 - [ ] **[MANDATORY] Set Production Environment:** Verify `ENVIRONMENT=production` in the production `.env` file. This automatically disables payment simulation bypasses (`SEC-CRIT-01`).
 - [ ] **[MANDATORY] Generate Cryptographic Secret Key:** Set `SECRET_KEY` in `.env` to a random 64-character hex string generated with:
+
   ```bash
   python3 -c "import secrets; print(secrets.token_hex(32))"
   ```
+
 - [ ] **[MANDATORY] Live Razorpay Credentials:** Configure live Razorpay API keys in `.env`:
   - `RAZORPAY_KEY_ID`: `rzp_live_...`
   - `RAZORPAY_KEY_SECRET`: Production webhook secret (never commit to git).
 - [ ] **[MANDATORY] CORS Allowed Origins:** Verify `CORS_ORIGINS` in `.env` contains only your production domains:
+
   ```ini
   CORS_ORIGINS="https://sangitatravelspune.com,https://www.sangitatravelspune.com"
   ```
+
 - [ ] **[MANDATORY] File System Permissions:** Restrict access to backend configuration and SQLite database files:
+
   ```bash
   chmod 700 backend/data
   chmod 600 backend/data/bookings.db
@@ -38,16 +45,21 @@ Before deploying Sangita Travels Pune to production, every check in this documen
 ---
 
 ### 2.2 Network & Reverse Proxy (Nginx)
+
 - [ ] **[MANDATORY] TLS 1.3 Termination:** Enforce HTTPS using Let's Encrypt or commercial SSL certificate with TLS 1.2/1.3 only:
+
   ```nginx
   ssl_protocols TLSv1.2 TLSv1.3;
   ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256;
   ssl_prefer_server_ciphers on;
   ```
+
 - [ ] **[MANDATORY] HTTP Strict Transport Security (HSTS):** Enable HSTS header in Nginx configuration:
+
   ```nginx
   add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
   ```
+
 - [ ] **[MANDATORY] Reverse Proxy Security Headers:** Verify headers are actively injected:
   - `X-Frame-Options: SAMEORIGIN`
   - `X-Content-Type-Options: nosniff`
@@ -56,11 +68,14 @@ Before deploying Sangita Travels Pune to production, every check in this documen
   - `Permissions-Policy: geolocation=(), camera=(), microphone=()`
   - `Content-Security-Policy: default-src 'self' ...`
 - [ ] **[MANDATORY] Edge Rate Limiting:** Enforce Nginx rate limiting zones:
+
   ```nginx
   limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
   limit_req_zone $binary_remote_addr zone=login_limit:10m rate=5r/m;
   ```
+
 - [ ] **[MANDATORY] Firewall Hardening (UFW):** Ensure only required ports are exposed:
+
   ```bash
   sudo ufw default deny incoming
   sudo ufw default allow outgoing
@@ -73,26 +88,36 @@ Before deploying Sangita Travels Pune to production, every check in this documen
 ---
 
 ### 2.3 Database & Disaster Recovery
+
 - [ ] **[MANDATORY] SQLite WAL Mode:** Verify SQLite database is operating in WAL mode:
+
   ```bash
   sqlite3 backend/data/bookings.db "PRAGMA journal_mode;"
   # Expected output: wal
   ```
+
 - [ ] **[MANDATORY] Foreign Keys Enabled:** Verify foreign key constraints are enforced:
+
   ```bash
   sqlite3 backend/data/bookings.db "PRAGMA foreign_keys;"
   # Expected output: 1
   ```
+
 - [ ] **[MANDATORY] Automated Backup Cron:** Schedule automated backups in cron (`crontab -e`):
+
   ```bash
   # Run WAL snapshot backup every 6 hours and rotate (keep 30 days)
   0 */6 * * * /usr/bin/python3 /opt/sangita-cab/backend/scripts/backup_db.py --max-backups 120 >> /var/log/cab_backup.log 2>&1
   ```
+
 - [ ] **[RECOMMENDED] Off-Site Cloud Backup Sync:** Configure S3 or GCS archive syncing in `BACKUP_SYNC_CMD`:
+
   ```bash
   export BACKUP_SYNC_CMD="aws s3 cp {backup_file} s3://sangita-cab-backups/sqlite/"
   ```
+
 - [ ] **[MANDATORY] Disaster Recovery Restoration Test:** Test restoring a backup into a temporary file before cutover:
+
   ```bash
   python3 backend/scripts/restore_db.py --backup backend/data/backups/bookings_backup_LATEST.db --target /tmp/test_restore.db --force
   ```
@@ -100,7 +125,9 @@ Before deploying Sangita Travels Pune to production, every check in this documen
 ---
 
 ### 2.4 Process Supervision (systemd)
+
 - [ ] **[MANDATORY] Non-Root Service Execution:** Run the application server under a dedicated, low-privilege system user (`cabuser`):
+
   ```ini
   [Service]
   User=cabuser
@@ -110,7 +137,9 @@ Before deploying Sangita Travels Pune to production, every check in this documen
   Restart=always
   RestartSec=5
   ```
+
 - [ ] **[MANDATORY] Linux Sandbox Security Directives:** Enable systemd sandboxing in `sangita-cab.service`:
+
   ```ini
   NoNewPrivileges=true
   ProtectSystem=strict
@@ -122,11 +151,15 @@ Before deploying Sangita Travels Pune to production, every check in this documen
 ---
 
 ### 2.5 Administrative Account Security
+
 - [ ] **[MANDATORY] Super Admin Bootstrap:** Ensure the initial Super Admin has been bootstrapped with a strong password:
+
   ```bash
   python3 backend/scripts/bootstrap_super_admin.py --email shitalupadhye2001@gmail.com
   ```
+
 - [ ] **[MANDATORY] Default Admin Deletion / Password Rotation:** Verify no weak passwords (`admin`, `admin123`, `password`) exist in the `admins` table:
+
   ```bash
   python3 -c "
   import sqlite3
@@ -137,6 +170,7 @@ Before deploying Sangita Travels Pune to production, every check in this documen
           print(row)
   "
   ```
+
 - [ ] **[MANDATORY] Multi-Factor Authentication (MFA):** Ensure Super Admin credentials are safeguarded and sessions expire after 24 hours of inactivity.
 
 ---

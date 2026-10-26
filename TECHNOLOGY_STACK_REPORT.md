@@ -1,4 +1,5 @@
 # Technology Stack & Architecture Report
+
 **Project:** Sangita Travels Pune (Pune Taxi Cab Management System)  
 **Date:** October 13, 2026  
 **Auditor:** Senior Application Security & DevSecOps Engineer  
@@ -11,6 +12,7 @@
 Sangita Travels Pune is an intercity cab dispatch, fleet management, and tour reservation web platform serving routes between Pune, Mumbai, Mumbai Airport, and major outstation destinations across Maharashtra.
 
 The system is architected as a lightweight, high-performance web platform combining:
+
 - A modern **React 19 + TypeScript + Vite** client-side Single-Page Application (SPA) with hash-based routing and multi-lingual localization (English, Hindi, Marathi).
 - A high-throughput, low-overhead **Python 3 standard library microservice** backend operating with **zero external third-party runtime dependencies**.
 - An embedded **SQLite 3 relational database running in WAL mode** with foreign key constraints, connection pooling, and versioned schema migrations.
@@ -24,7 +26,7 @@ The system is architected as a lightweight, high-performance web platform combin
 | :--- | :--- | :--- | :--- |
 | **Frontend Framework** | React + TypeScript | React 19.2.8, TypeScript 6.0.2 | Reactive UI components, state management, form validation |
 | **Frontend Tooling** | Vite | Vite 8.3.0, @vitejs/plugin-react 6.1.1 | Fast compilation, HMR, production bundling with asset hashing |
-| **Code Quality (Frontend)**| Oxlint + ESLint + Prettier | Oxlint 1.81.0, ESLint 10.12.0, Prettier 3.9.10 | Linting, AST verification, code style consistency |
+| **Code Quality (Frontend)** | Oxlint + ESLint + Prettier | Oxlint 1.81.0, ESLint 10.12.0, Prettier 3.9.10 | Linting, AST verification, code style consistency |
 | **Frontend Testing** | Vitest | Vitest 5.0.4 | Unit and regression testing for client services and validation |
 | **Icons & UI** | Lucide React | Lucide React 1.55.0 | Responsive SVG iconography |
 | **Backend Runtime** | Python 3 | Python 3.9+ (Standard Library) | Application server, HTTP parsing, API routing |
@@ -103,6 +105,7 @@ Pune Mumbai Cab/
 ## 4. Trust Boundaries & Data Flow Analysis
 
 ### Trust Boundary 1: Public Internet ➔ Server HTTP Interface
+
 - **Public Entrypoints**:
   - `GET /` and static assets (`/assets/*`, `/favicon.svg`, `/robots.txt`, `/sitemap.xml`).
   - `GET /api/public/*` (fleet, tours, services, pricing, reviews, blog).
@@ -118,6 +121,7 @@ Pune Mumbai Cab/
   - Strict Content-Security-Policy, X-Frame-Options, X-Content-Type-Options headers.
 
 ### Trust Boundary 2: Authenticated Users ➔ Privileged Operations
+
 - **Protected Administrative Endpoints**:
   - `/api/dashboard/summary`, `/api/dashboard/charts`
   - `/api/bookings` (GET list, PUT edit, POST bulk-status, DELETE bulk-delete)

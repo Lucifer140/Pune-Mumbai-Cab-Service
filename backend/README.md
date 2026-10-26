@@ -59,6 +59,7 @@ python3 server.py 8080
 ```
 
 The server will be available at:
+
 - **Customer Web Application:** `http://localhost:8080/`
 - **Admin Dashboard:** `http://localhost:8080/admin`
 - **Admin Login:** `http://localhost:8080/login.html`
@@ -105,7 +106,7 @@ mypy .
 
 ## Directory Structure
 
-```
+```text
 backend/
 ├── pyproject.toml        # PEP 517/621 package metadata & tool config
 ├── requirements.txt      # Production dependencies

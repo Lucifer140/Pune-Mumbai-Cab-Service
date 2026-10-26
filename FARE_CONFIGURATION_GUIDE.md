@@ -1,11 +1,12 @@
 # Fare Configuration & Admin Management Guide
+
 **Sangita Travels Pune — Super Admin & Fleet Pricing Operations**
 
 ---
 
 ## 1. Access Control & Role Permissions
 
-The Pricing Rules module is protected by the Sangita Travels RBAC (Role-Based Access Control) security model. 
+The Pricing Rules module is protected by the Sangita Travels RBAC (Role-Based Access Control) security model.
 
 | Role | Access Level | Permissions |
 | :--- | :--- | :--- |
@@ -13,7 +14,7 @@ The Pricing Rules module is protected by the Sangita Travels RBAC (Role-Based Ac
 | **MANAGER** | Full Management | Create and edit rate cards, configure vehicle pricing, preview quotes |
 | **BOOKING_STAFF** | View Only | View configured prices for customer phone inquiries; cannot modify rates |
 | **CONTENT_MANAGER** | No Access | Restricted to blog posts, SEO, and CMS media assets |
-| **Customers / Public**| Read Only | Public API only reads sanitized pricing breakdowns; mutation endpoints reject with 401/403 |
+| **Customers / Public** | Read Only | Public API only reads sanitized pricing breakdowns; mutation endpoints reject with 401/403 |
 
 > [!IMPORTANT]
 > **Authentication Endpoint:**
@@ -34,7 +35,9 @@ The Pricing Rules module is protected by the Sangita Travels RBAC (Role-Based Ac
 ## 3. Configuring Swift Dzire and Maruti Ertiga Rates
 
 ### A. Swift Dzire (Sedan — 4 Passengers)
+
 Recommended Baseline Configuration:
+
 - **Vehicle Key:** `dzire`
 - **Vehicle Name:** `Swift Dzire (Sedan)`
 - **One-Way Base Fare:** `₹2,299`
@@ -46,7 +49,9 @@ Recommended Baseline Configuration:
 - **Public Visibility:** Active (`1`)
 
 ### B. Maruti Ertiga (New MUV — 6 Passengers)
+
 Recommended Baseline Configuration:
+
 - **Vehicle Key:** `ertiga`
 - **Vehicle Name:** `Maruti Ertiga (New MPV)`
 - **One-Way Base Fare:** `₹3,199`
@@ -62,10 +67,12 @@ Recommended Baseline Configuration:
 ## 4. How to Update or Add Pricing Rules
 
 ### Step 1: Open Edit Modal
+
 - Locate the vehicle row in the **Rate Cards** table.
 - Click the blue **Edit** button (pencil icon).
 
 ### Step 2: Configure Price Parameters
+
 1. **Base Rate (One-Way):** Minimum floor price charged for standard corridor (e.g. Pune to Mumbai).
 2. **Rate Per KM:** Dynamic distance multiplier applied when `Road Distance × Per-Km Rate` exceeds the base rate.
 3. **Minimum Billable KM:** Minimum distance charged regardless of shorter trips (e.g. 130 km for outstation).
@@ -75,6 +82,7 @@ Recommended Baseline Configuration:
 7. **Show on Website:** Toggle checkbox to make this vehicle visible on the public customer booking widget.
 
 ### Step 3: Save Changes
+
 - Click **Save Rate Card**.
 - The backend validates all inputs, updates SQLite database records, invalidates cached quotations, and creates a persistent audit log entry.
 
@@ -83,6 +91,7 @@ Recommended Baseline Configuration:
 ## 5. Live Fare Preview & Quotation Simulation
 
 Before applying rate changes to customer bookings, test them using the built-in **Fare Calculator**:
+
 1. Select the vehicle (**Swift Dzire** or **Maruti Ertiga**).
 2. Choose the trip type (**One Way**, **Round Trip**, **Airport Transfer**, or **Outstation**).
 3. Enter driving distance (e.g. `152 km` for Pune-Mumbai or `212 km` for Pune-Nashik).
@@ -110,6 +119,7 @@ ORDER BY id DESC;
 ```
 
 ### Example Audit Log Entry
+
 - **Action:** `UPDATE_PRICING`
 - **Resource:** `pricing`
 - **User:** `admin` (Shital Upadhye)

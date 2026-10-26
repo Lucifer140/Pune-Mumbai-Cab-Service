@@ -1,4 +1,5 @@
 # Google Maps Platform Setup & Security Configuration
+
 **Sangita Travels Pune — Cab Management System**
 
 ---
@@ -49,12 +50,14 @@ To protect your Google Cloud billing account and maintain high availability, San
 ```
 
 ### A. Frontend Browser Key (`VITE_GOOGLE_MAPS_API_KEY`)
+
 - **Location:** `frontend/.env.local`
 - **Purpose:** Loads Google Maps JavaScript SDK, Places Autocomplete, and interactive route polylines in the client browser.
 - **Exposure:** Visible in browser client code by design.
 - **Mandatory Restriction:** HTTP Referrer restriction in Google Cloud Console.
 
 ### B. Backend Server Key (`GOOGLE_MAPS_API_KEY`)
+
 - **Location:** `backend/.env`
 - **Purpose:** Server-side authoritative route distance, driving duration, and toll price queries (`computeRoutes` with `extraComputations: ["TOLLS"]`).
 - **Exposure:** Strictly confidential; never sent to or visible in client browsers.
@@ -65,12 +68,15 @@ To protect your Google Cloud billing account and maintain high availability, San
 ## 3. Step-by-Step Google Cloud Console Configuration
 
 ### Step 1: Create or Select Your Google Cloud Project
+
 1. Visit the [Google Cloud Console](https://console.cloud.google.com/).
 2. Create a new project: `sangita-travels-maps` (or select your existing project).
 3. Ensure **Billing** is linked to an active payment method.
 
 ### Step 2: Enable Required APIs
+
 Enable the following APIs in **APIs & Services > Library**:
+
 1. **Maps JavaScript API** (Interactive map canvas and directions rendering)
 2. **Places API** and **Places API (New)** (Address search and place autocomplete)
 3. **Routes API** (Next-generation routing with real-time toll calculations)
@@ -78,6 +84,7 @@ Enable the following APIs in **APIs & Services > Library**:
 5. **Geocoding API** (Coordinate translation for custom landmarks)
 
 ### Step 3: Create & Restrict the Frontend Browser Key
+
 1. Go to **APIs & Services > Credentials > Create Credentials > API Key**.
 2. Rename key to: `Sangita-Travels-Frontend-Browser-Key`.
 3. Under **Application restrictions**, choose **Websites**:
@@ -93,6 +100,7 @@ Enable the following APIs in **APIs & Services > Library**:
 5. Save the key.
 
 ### Step 4: Create & Restrict the Backend Server Key
+
 1. Click **Create Credentials > API Key**.
 2. Rename key to: `Sangita-Travels-Backend-Server-Key`.
 3. Under **Application restrictions**, choose **IP addresses**:
@@ -122,14 +130,18 @@ Both `.env` files are excluded from Git repository tracking via the root `.gitig
 ```
 
 ### Configuring Frontend (`frontend/.env.local`)
+
 Create or edit `frontend/.env.local`:
+
 ```bash
 # Google Maps JavaScript Browser Key (HTTP Referrer Restricted)
 VITE_GOOGLE_MAPS_API_KEY=AIzaSy...YourRestrictedBrowserKeyHere
 ```
 
 ### Configuring Backend (`backend/.env`)
+
 Edit `backend/.env`:
+
 ```bash
 # Google Maps Server-Side Web Service Key (IP Restricted)
 GOOGLE_MAPS_API_KEY=AIzaSy...YourRestrictedServerKeyHere
@@ -160,6 +172,7 @@ The Sangita Travels integration does **not** crash or display blank screens if t
 ## 6. Budget Alerts & Quota Control
 
 To prevent unexpected Google Cloud charges:
+
 1. Navigate to **Billing > Budgets & alerts** in Google Cloud Console.
 2. Create a monthly budget of ₹1,000 (or $15 USD).
 3. Set alerts at 50%, 80%, 100%, and 120% threshold notifications sent to `shitalupadhye287@gmail.com`.

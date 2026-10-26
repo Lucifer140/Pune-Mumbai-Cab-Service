@@ -7,6 +7,7 @@ This document specifies the security controls, cryptographic standards, session 
 ## 1. Authentication Engine & Cryptography
 
 ### 1.1 Password Hashing Specification
+
 - **Algorithm:** PBKDF2 (Password-Based Key Derivation Function 2)
 - **Hash Function:** HMAC-SHA256
 - **Iteration Count:** 100,000 rounds
@@ -17,7 +18,9 @@ This document specifies the security controls, cryptographic standards, session 
 - **Zero Plaintext Rule:** Plaintext passwords are never persisted in SQLite, never returned in API payloads, and never logged in stdout or file logs.
 
 ### 1.2 Password Complexity Policy
+
 All passwords created via bootstrap, user management, or password reset must satisfy:
+
 - Minimum length of 8 characters.
 - At least one alphabetic letter (`[A-Za-z]`).
 - At least one numeric digit (`[0-9]`).
@@ -27,6 +30,7 @@ All passwords created via bootstrap, user management, or password reset must sat
 ## 2. Session & Token Management
 
 ### 2.1 Session Identifier Specification
+
 - **Token Format:** 32-byte cryptographically secure random token (64-character hex string).
 - **Storage:** Persisted in the `sessions` table:
   - `token` (Primary Key)
@@ -37,17 +41,22 @@ All passwords created via bootstrap, user management, or password reset must sat
   - `expires_at`
 
 ### 2.2 Dual Token Delivery
+
 Sessions are verified through either:
+
 1. **HTTP Authorization Header:** `Authorization: Bearer <token>`
 2. **HttpOnly Cookie:**
+
    ```http
    Set-Cookie: admin_token=<token>; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000; [Secure]
    ```
+
    - `HttpOnly`: Prevents client-side scripts from reading session tokens, mitigating XSS token extraction.
    - `SameSite=Lax`: Defends against Cross-Site Request Forgery (CSRF).
    - `Secure`: Automatically appended when `ENVIRONMENT=production`.
 
 ### 2.3 Session Expiration & Invalidation
+
 - **Session Duration:** 30 days (when "Remember session" is selected) or 7 days default.
 - **Immediate Invalidation:** All active sessions for a user are deleted from `sessions` upon:
   - Explicit logout (`POST /api/logout`).
@@ -73,7 +82,7 @@ Sessions are verified through either:
 Permissions are enforced strictly on the server by `router.py` and `core/security.py`:
 
 | Role | Title | Core Permissions | Allowed Administrative Actions |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | **`SUPER_ADMIN`** | Super Admin | `['*']` | Manage users, assign roles, system configuration, audit logs, and all operational tasks. |
 | **`ADMIN`** | Administrator | `dashboard`, `bookings:*`, `customers:*`, `fleet:*`, `drivers:*`, `tours:*`, `services:*`, `pricing:*`, `coupons:*`, `reviews:*`, `analytics:*`, `export:*` | Full day-to-day dispatch, fleet, customer CRM, pricing, and driver assignments. Cannot manage users or audit logs. |
 | **`MANAGER`** | Fleet Manager | `dashboard`, `bookings:read`, `bookings:write`, `customers:read`, `fleet:*`, `tours:*`, `services:*`, `pricing:read`, `analytics:read` | Daily operations, booking status changes, and vehicle assignments. |
@@ -113,7 +122,8 @@ CREATE TABLE audit_logs (
 );
 ```
 
-### Logged Operations:
+### Logged Operations
+
 - `LOGIN_SUCCESS`, `LOGIN_FAILED`, `ACCOUNT_LOCKED`, `LOGOUT`
 - `SUPER_ADMIN_BOOTSTRAP`, `SUPER_ADMIN_PASSWORD_ROTATED`
 - `CREATE_USER`, `UPDATE_USER`, `DEACTIVATE_USER`, `ACTIVATE_USER`, `DELETE_USER`
@@ -125,6 +135,7 @@ Sensitive data (passwords, tokens, salts) are strictly excluded from audit log d
 ## 7. Multi-Factor Authentication (MFA / 2FA) Roadmap
 
 While the current Python standard library backend does not bundle an external TOTP dependency, MFA can be integrated seamlessly:
+
 1. **TOTP (RFC 6238):** Add standard TOTP secret generation (`pyotp`) and QR code rendering for Google Authenticator / Microsoft Authenticator.
 2. **Email OTP:** The existing `EmailService` (`backend/services/email_service.py`) can be extended to dispatch a 6-digit verification code to the Super Admin's email address during login challenge.
 3. **Hardware Keys (WebAuthn):** Standard browser `navigator.credentials.create()` flow for FIDO2 hardware tokens.

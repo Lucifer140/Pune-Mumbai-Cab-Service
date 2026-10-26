@@ -1,4 +1,5 @@
 # Driving Distance, Toll Estimation & Auto Fare Calculator Implementation
+
 **Sangita Travels Pune — Technical Architecture & Integration Guide**
 
 ---
@@ -55,6 +56,7 @@ The Distance, Toll, and Fare Calculator integration connects customer inputs on 
 ## 2. Customer Booking Component Implementation
 
 ### A. Places Autocomplete Input (`PlacesAutocompleteInput.tsx`)
+
 - **File:** `frontend/src/modules/public/components/PlacesAutocompleteInput.tsx`
 - **Behavior:**
   - When the Google Maps JS SDK is active, binds `google.maps.places.Autocomplete` restricted to India (`country: 'in'`).
@@ -63,12 +65,14 @@ The Distance, Toll, and Fare Calculator integration connects customer inputs on 
   - Features clear button (`X`), loading spinner, and visual status indicator (`● Live Google Places`).
 
 ### B. Validation Rules for Locations
+
 - **Empty / Incomplete Input:** Prevented before submission; inputs have HTML5 `required` attribute and client-side character length checks (`>= 2` characters).
 - **Identical Pickup & Drop:**
   - Evaluated on both client and server: `pickup.trim().toLowerCase() === drop.trim().toLowerCase()`.
   - When detected, calculation is suspended, an alert banner is displayed: *"Pickup and Drop locations cannot be identical. Please choose distinct points."*, and the backend returns HTTP 400.
 
 ### C. Interactive Route Map (`GoogleRouteMap.tsx`)
+
 - **File:** `frontend/src/modules/public/components/GoogleRouteMap.tsx`
 - **Behavior:**
   - Renders an interactive Google Map canvas using `google.maps.Map` and `google.maps.DirectionsRenderer`.
@@ -86,6 +90,7 @@ The Distance, Toll, and Fare Calculator integration connects customer inputs on 
 ## 3. Driving Distance and Toll Estimation Engine
 
 ### Google Routes API (`computeRoutes`)
+
 - **Endpoint:** `https://routes.googleapis.com/directions/v2:computeRoutes`
 - **Request Configuration:**
   - `travelMode`: `DRIVE`
@@ -95,6 +100,7 @@ The Distance, Toll, and Fare Calculator integration connects customer inputs on 
   Parses `routes[0].travelAdvisory.tollInfo.estimatedPrice` array, aggregating rupees and nanos into the exact toll amount.
 
 ### Multi-Tier Fallback Hierarchy
+
 1. **Tier 1 — SQLite Route Cache (`route_cache` table):**
    Stores `(origin_query, destination_query, distance_km, duration_text, toll_amount, toll_available)`. Repeated searches load instantly in `0.5ms` without consuming API quota.
 2. **Tier 2 — Pre-Calculated Maharashtra Highway Route Matrix:**
@@ -116,6 +122,7 @@ The Distance, Toll, and Fare Calculator integration connects customer inputs on 
 ## 4. Cab Fare Calculation Rules & Formulas
 
 ### Business Pricing Formula
+
 ```
 Billable Distance = max(Actual Distance, Minimum Billable Km)
 
@@ -134,13 +141,14 @@ Final Total Fare  = max(Vehicle Base Fare, Authoritative Subtotal) - Coupon Disc
 | **Seating Capacity** | 4 Passengers | 6 Passengers | 7 Passengers | 17 Passengers |
 | **Luggage Space** | 2 Large Bags | 3 Large Bags | 4 Large Bags | 10 Large Bags |
 | **One-Way Base Fare** | ₹2,299 | ₹3,199 | ₹4,499 | ₹7,499 |
-| **Per-Kilometre Rate**| ₹13.00 / km | ₹15.00 / km | ₹21.00 / km | ₹28.00 / km |
-| **Minimum Billable Km**| 130 km | 130 km | 150 km | 250 km |
+| **Per-Kilometre Rate** | ₹13.00 / km | ₹15.00 / km | ₹21.00 / km | ₹28.00 / km |
+| **Minimum Billable Km** | 130 km | 130 km | 150 km | 250 km |
 | **Driver Allowance** | ₹300 | ₹300 | ₹400 | ₹600 |
 | **Round-Trip Base** | ₹4,500 | ₹6,000 | ₹8,500 | ₹14,000 |
 | **Airport Rate** | ₹2,299 | ₹3,199 | ₹4,499 | ₹7,499 |
 
 ### Trip Type Logic
+
 1. **One-Way Drop (`oneway`):**
    `Billable Km = max(distance, min_km)`. Includes one-way toll and driver allowance.
 2. **Round-Trip (`roundtrip`):**
@@ -155,13 +163,16 @@ Final Total Fare  = max(Vehicle Base Fare, Authoritative Subtotal) - Coupon Disc
 ## 5. Authoritative Booking Persistence & Quotation Snapshot
 
 ### Schema Enhancement (`migration_010_quotation_snapshot`)
+
 The `bookings` table stores the following columns:
+
 - `distance_km REAL`: Calculated road distance.
 - `duration_text VARCHAR(50)`: Estimated travel time.
 - `toll_amount REAL`: Estimated toll charge.
 - `quotation_snapshot TEXT`: Full JSON audit snapshot.
 
 ### Quotation Snapshot JSON Structure
+
 ```json
 {
   "route": "Pune ➔ Mumbai Airport T2",
@@ -187,7 +198,9 @@ The `bookings` table stores the following columns:
 ```
 
 ### Security Rule: Client Fare Tampering Defense
+
 When a user submits a booking:
+
 1. The server reads `pickup`, `drop`, `vehicle`, and `trip_type`.
 2. The server **ignores** `fare` submitted by the browser.
 3. The server recalculates the authoritative fare via `MapsService.compute_fare_breakdown()`.
@@ -201,6 +214,7 @@ When a user submits a booking:
 In response to user feedback for a streamlined, high-converting booking experience:
 
 ### A. Booking Form De-Cluttering (`BookingWidget.tsx`)
+
 1. **Vehicle Selector Rebranding:**
    - Form label updated to `"Select Preferred Vehicle *"`.
    - Removed inline price tags (`₹{carFare}` and `all-inclusive`) from the vehicle cards.
@@ -215,9 +229,8 @@ In response to user feedback for a streamlined, high-converting booking experien
    - Server-side authoritative distance calculation, route validation, and quotation snapshot persistence remain 100% active in the background.
 
 ### B. Code Quality & Test Verifications
+
 - **Backend Tests:** 51/51 tests passing (`Ran 51 tests in 3.154s — OK`).
 - **Frontend Tests:** 10/10 tests passing across all test suites.
 - **Production Build:** `tsc -b && vite build` builds in under 400ms without TypeScript or bundler errors.
 - **Server Process:** Python backend running reliably on port 8080.
-
-

@@ -125,11 +125,13 @@ If you have `make` installed, you can manage the entire application using these 
 ### Step 2: Backend Setup & Database Migration
 
 1. **Navigate to the backend directory:**
+
    ```bash
    cd backend
    ```
 
 2. **(Recommended) Initialize a Python virtual environment:**
+
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
@@ -137,21 +139,27 @@ If you have `make` installed, you can manage the entire application using these 
    ```
 
 3. **Configure Environment Variables:**
+
    ```bash
    cp .env.example .env
    ```
+
    *Note: Edit `.env` to customize your port, business details, or secret keys if needed.*
 
 4. **Run the Database Migrations:**
+
    ```bash
    python3 migrate.py
    ```
+
    *This initializes `data/bookings.db` in WAL mode, generates all required tables, and seeds default administrators, pricing, routes, vehicles, and tours.*
 
 5. **Start the Backend Server:**
+
    ```bash
    python3 server.py
    ```
+
    The backend will start on `http://localhost:8080`.
 
 ---
@@ -161,24 +169,29 @@ If you have `make` installed, you can manage the entire application using these 
 In a new terminal window:
 
 1. **Navigate to the frontend directory:**
+
    ```bash
    cd frontend
    ```
 
 2. **Configure Frontend Environment:**
+
    ```bash
    cp .env.example .env
    ```
 
 3. **Install Dependencies:**
+
    ```bash
    npm install
    ```
 
 4. **Start the Vite Development Server (with Hot Module Replacement):**
+
    ```bash
    npm run dev
    ```
+
    The development frontend will open at `http://localhost:5173`. Requests to `/api/` can be routed directly to `http://localhost:8080`.
 
 ---
@@ -188,13 +201,16 @@ In a new terminal window:
 The backend's [server.py](file:///Users/shital/Desktop/Pune%20Mumbai%20Cab/backend/server.py) is capable of serving both the REST API and the compiled frontend build as a unified service on a single port:
 
 1. **Build the production frontend bundle:**
+
    ```bash
    cd frontend
    npm run build
    ```
+
    *This outputs optimized static assets into `frontend/dist/`.*
 
 2. **Run the production backend:**
+
    ```bash
    cd ../backend
    python3 server.py
@@ -269,11 +285,11 @@ mypy .
 | `ENVIRONMENT` | `production` | Environment mode (`development` or `production`) |
 | `DATABASE_PATH` | `data/bookings.db` | Filepath to SQLite database |
 | `ADMIN_SECRET_KEY` | Hex token | Cryptographic secret for signing session tokens |
-| `SESSION_EXPIRY_DAYS`| `30` | Number of days session tokens remain valid |
+| `SESSION_EXPIRY_DAYS` | `30` | Number of days session tokens remain valid |
 | `BUSINESS_NAME` | `"Sangita Travels Pune"` | Business display name |
 | `SUPPORT_PHONE` | `8261021008` | Primary customer helpline |
 | `WHATSAPP_NUMBER` | `918261021008` | WhatsApp booking helpline (with country code) |
-| `SUPPORT_EMAIL` | `shitalupadhye287@gmail.com`| Customer care email address |
+| `SUPPORT_EMAIL` | `shitalupadhye287@gmail.com` | Customer care email address |
 
 ### Frontend (`frontend/.env`)
 
@@ -281,9 +297,9 @@ mypy .
 | :--- | :--- | :--- |
 | `VITE_API_URL` | `http://localhost:8080` | Base URL of the backend REST API |
 | `VITE_APP_ENV` | `production` | Frontend runtime environment flag |
-| `VITE_PUBLIC_BRAND_NAME`| `"Sangita Travels Pune"` | Display brand name in header and footer |
-| `VITE_PUBLIC_SUPPORT_PHONE`| `8261021008` | Helpline number displayed across UI |
-| `VITE_PUBLIC_WHATSAPP_NUMBER`| `918261021008` | WhatsApp click-to-chat destination number |
+| `VITE_PUBLIC_BRAND_NAME` | `"Sangita Travels Pune"` | Display brand name in header and footer |
+| `VITE_PUBLIC_SUPPORT_PHONE` | `8261021008` | Helpline number displayed across UI |
+| `VITE_PUBLIC_WHATSAPP_NUMBER` | `918261021008` | WhatsApp click-to-chat destination number |
 
 ---
 

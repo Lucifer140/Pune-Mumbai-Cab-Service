@@ -1,4 +1,5 @@
 # Technical Security Hardening & Remediation Log
+
 **Project:** Sangita Travels Pune — Intercity Cab Management System  
 **Branch:** `audit-remediation`  
 **Date:** October 13, 2026  
@@ -36,6 +37,7 @@ This document provides a line-level technical record of all security patches app
 ---
 
 ### [PATCH-01] Constant-Time Password Hash Verification
+
 - **File:** `backend/core/security.py`
 - **Finding:** `SEC-MED-01`
 - **Rationale:** Standard `==` operator stops comparing at the first mismatched byte, creating measurable timing discrepancies. `hmac.compare_digest` enforces uniform execution time across all input combinations.
@@ -61,6 +63,7 @@ def verify_password(plain_password: str, stored_hash: str, salt: str) -> bool:
 ---
 
 ### [PATCH-02] Payment Signature Verification & Simulation Restriction
+
 - **File:** `backend/services/payment_service.py`
 - **Finding:** `SEC-CRIT-01`, `BUG-HIGH-02`
 - **Rationale:** Prohibits simulation payment bypass in production mode. Verifies HMAC-SHA256 signatures against Razorpay webhook secrets and prevents duplicate payments via transaction idempotency checks.
@@ -104,6 +107,7 @@ def verify_payment(booking_id, razorpay_order_id, razorpay_payment_id, razorpay_
 ---
 
 ### [PATCH-03] Broken Object-Level Authorization (BOLA) on Invoices
+
 - **File:** `backend/controllers/payment_controller.py`
 - **Finding:** `SEC-HIGH-02`
 - **Rationale:** Invoices contain sensitive passenger PII. Access is restricted to authenticated administrators OR passengers presenting their specific booking reference code and registered phone number.
@@ -147,6 +151,7 @@ def get_invoice(handler, booking_id):
 ---
 
 ### [PATCH-04] Server-Authoritative Fare & Passenger Capacity Bounding
+
 - **File:** `backend/controllers/booking_controller.py`
 - **Finding:** `SEC-HIGH-01`, `BUG-HIGH-01`
 - **Rationale:** Prevents client-side manipulation of trip fares, negative pricing, past booking dates, and passenger overcrowding beyond vehicle capacity.
@@ -189,6 +194,7 @@ authoritative_fare = fare_breakdown["total_fare"]
 ---
 
 ### [PATCH-05] Password Reset Lockout & Timing Protection
+
 - **File:** `backend/controllers/auth_controller.py`
 - **Finding:** `SEC-HIGH-03`
 - **Rationale:** Protects against token brute-forcing by tracking failed attempts, invalidating after 5 strikes, and using constant-time string comparisons.
@@ -207,6 +213,7 @@ if not hmac.compare_digest(reset_record["token"], token):
 ---
 
 ### [PATCH-06] Internal Path Sanitization in Health/Readiness Probes
+
 - **File:** `backend/controllers/health_controller.py`
 - **Finding:** `SEC-MED-02`
 - **Rationale:** Prevents disclosure of server architecture, directory structures, and local usernames to external attackers.
@@ -232,6 +239,7 @@ return json_response(handler, {
 ---
 
 ### [PATCH-07] Trusted Reverse Proxy IP Resolution
+
 - **File:** `backend/core/response.py`
 - **Finding:** `SEC-MED-03`, `BUG-LOW-02`
 - **Rationale:** Prevents external clients from spoofing client IP addresses by injecting arbitrary `X-Forwarded-For` headers.
@@ -254,6 +262,7 @@ def get_client_ip(handler) -> str:
 ---
 
 ### [PATCH-08] SVG XML Sanitization against Stored XSS
+
 - **File:** `backend/controllers/media_controller.py`
 - **Finding:** `SEC-MED-04`, `BUG-MED-02`
 - **Rationale:** Prevents attackers from uploading malicious vector images with embedded JavaScript or entity expansion exploits.
@@ -276,6 +285,7 @@ def sanitize_svg(raw_bytes: bytes) -> tuple[bool, str]:
 ---
 
 ### [PATCH-09] Route Rate Limiting Configuration
+
 - **File:** `backend/middleware/rate_limiter.py`
 - **Finding:** `SEC-LOW-01`
 - **Rationale:** Prevents denial-of-service and brute-force abuse of sensitive public endpoints.
@@ -294,6 +304,7 @@ ROUTE_LIMITS = {
 ---
 
 ### [PATCH-10] Database Backup Timestamp Precision & WAL Cleanup
+
 - **File:** `backend/scripts/backup_db.py`
 - **Finding:** `BUG-MED-01`
 - **Rationale:** Prevents backup filename collisions during rapid execution and eliminates orphaned `.db-wal` / `.db-shm` sidecars.
@@ -317,6 +328,7 @@ for ext in ["-wal", "-shm"]:
 ## 4. Verification & Testing Evidence
 
 All 11 patches have been verified locally on macOS:
+
 - Backend: `python3 -m unittest discover -s backend/tests` ➔ **44/44 passing**
 - Frontend: `cd frontend && npm test -- --run` ➔ **10/10 passing**
 - Build: `cd frontend && npm run build` ➔ **0 errors, 393ms build time**

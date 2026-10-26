@@ -1,4 +1,5 @@
 # Quality Assurance & Integration Test Report
+
 **Sangita Travels Pune — Google Maps, Toll Engine & Auto Fare Calculator**
 **Test Date:** October 13, 2026 | **Environment:** Staging / Production Simulation (Port 8080)
 
@@ -63,6 +64,7 @@
 ## 3. Test Run Output Logs
 
 ### Backend Integration Test Suite
+
 ```
 test_01_pune_to_mumbai_distance_and_toll (backend.tests.test_maps_and_fare_integration.TestMapsAndFareIntegration)
 Test Pune to Mumbai Expressway corridor (152 km, ~3h 15m, ₹320 toll). ... ok
@@ -86,6 +88,7 @@ OK
 ```
 
 ### Frontend Build & Test Verification
+
 ```
  RUN  v5.0.4 /Users/shital/Desktop/Pune Mumbai Cab/frontend
  ✓ tests/auth_security.test.ts (3 tests) 3ms
